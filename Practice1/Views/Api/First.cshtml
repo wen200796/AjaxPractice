@@ -1,7 +1,7 @@
 ﻿<h1>First Ajax Demo</h1>
 <input type="button" class="btn btn-primary mb-3" value="Ajax 開始" id="buttonStart" />
-<i id="img1" style="display:none" class="fa-solid fa-spinner fa-spin"></i>
-<i   class="fa-solid fa-spinner fa-spin"></i>
+<i id="img1" style="visibility:hidden" class="fa-solid fa-spinner fa-spin"></i>
+@* <i   class="fa-solid fa-spinner fa-spin"></i> *@
 @* <img src="~/images/inlove.gif" style="display:none" id="img1" /> *@
 <div class="alert alert-info" id="divInfo"></div>
 
@@ -14,12 +14,10 @@
         btnStart.addEventListener('click', async () => {
             try {
                 //顯示執行中的圖
-                imgLoader.style.display = "inline";
+                imgLoader.style.visibility = 'visible';
                 //disable button
                 btnStart.setAttribute('disabled', 'disabled');
                 btnStart.value = "執行中...";
-
-
                 const response = await fetch('@Url.Content("~/api/index")');
                 if (!response.ok) {
                     throw new Error(`${response.status}`);
@@ -31,7 +29,7 @@
             } finally {
                 console.log('finally');
                 //隱藏執行中圖示
-                imgLoader.style.display = "none";
+                imgLoader.style.visibility = 'hidden';
                 btnStart.removeAttribute('disabled');
                 btnStart.value = "Ajax 開始";
             }

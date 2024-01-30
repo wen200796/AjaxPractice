@@ -18,6 +18,18 @@ namespace Practice1.Controllers
             Thread.Sleep(5000);
             return Content("Hello你好", "text/plain", Encoding.UTF8);
         }
+        public IActionResult CheckAccount(string name)
+        {
+            var member = _context.Members.FirstOrDefault(x => x.Name ==name);
+            if (member != null)
+            {
+                return Content("※帳號已存在", "text/plain", Encoding.UTF8);
+            }
+            else
+            {
+                return Content("✓帳號可使用", "text/plain", Encoding.UTF8);
+            }
+        }
         public IActionResult First()
         {
             return View();
