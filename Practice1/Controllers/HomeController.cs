@@ -22,6 +22,27 @@ namespace Practice1.Controllers
         {
             return View();
         }
+        public IActionResult First()
+        {
+            return View();
+        }
+        public IActionResult Address()
+        {
+            return View();
+        }
+        public IActionResult Show()
+        {
+            return View();
+        }
+
+        public IActionResult Spots()
+        {
+            return View();
+        }
+        public IActionResult AutoComplete()
+        {
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

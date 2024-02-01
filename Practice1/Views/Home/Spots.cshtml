@@ -1,0 +1,169 @@
+﻿﻿
+@{
+    ViewData["Title"] = "Spots";
+}
+<h1>Spots</h1>
+<div class="row">
+    <div class="col-3">
+        <select id="pageSize" class="form-select">
+            <option value =9>每頁 9 筆資料</option>
+            <option value=5>每頁 5 筆資料</option>
+            <option value=15>每頁 15 筆資料</option>
+        </select>
+        </div>
+    <div class="col-3">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination" id="ul1">
+            </ul>
+        </nav>
+    </div>
+    <div class="col-3">
+        <select id="sortBy" class="form-select">
+            <option value="spotId asc">景點編號升冪</option>
+            <option value="spotTitle asc">景點名稱升冪</option>
+            <option value='categoryId asc'>種類升冪</option>
+            <option value='spotId des'>景點編號降冪</option>
+            <option value='spotTitle des'>景點名稱降冪</option>
+            <option value='categoryId des'>種類降冪</option>
+        </select>
+    </div>
+    <div class="col-3">
+        <input type="search" class="form-control" placeholder="景點搜尋" id="inputKeyword" />
+    </div>
+</div>
+<div class="row mb-2">
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-secondary" value=1>養生<br>溫泉</button>
+        <button type="button" class="btn btn-outline-secondary" value=2>藍色<br>公路</button>
+        <button type="button" class="btn btn-outline-secondary" value=3>歷史<br>建築</button>
+        <button type="button" class="btn btn-outline-secondary" value=4>藝文<br>館所</button>
+        <button type="button" class="btn btn-outline-secondary" value=5>單車<br>遊蹤</button>
+        <button type="button" class="btn btn-outline-secondary" value=6>戶外<br>踏青</button>
+        <button type="button" class="btn btn-outline-secondary" value=7>宗教<br>信仰</button>
+        <button type="button" class="btn btn-outline-secondary" value=8>其<br>他</button>
+        <button type="button" class="btn btn-outline-secondary" value=9>親子<br>共遊</button>
+        <button type="button" class="btn btn-outline-secondary" value=10>公共<br>藝術</button>
+        <button type="button" class="btn btn-outline-secondary" value=11>春季<br>活動</button>
+    </div>
+</div>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="div1">
+</div>
+
+
+@section Scripts {
+    <script>
+        const div1 = document.querySelector('#div1');
+        // <<<<<<< HEAD
+        const ulPaging = document.querySelector('#ul1');
+        const inpKeyword = document.querySelector('#inputKeyword');
+        const pageSize = document.querySelector('#pageSize');
+        const sortBy = document.querySelector('#sortBy');
+        // =======
+        // >>>>>>> parent of 07ec45c (關鍵字搜尋分頁功能)
+        const searchData = {
+            "categoryId": 0,
+            "keyword": "北投",
+            "page": 1,
+            "pageSize": 9,
+            "sortType": "asc",
+            "sortBy": ""
+        };
+
+        const loadSpots = async () => {
+            const response = await fetch('@Url.Content("~/api/spots")', {
+                "method": "POST",
+                "body": JSON.stringify(searchData),
+                "headers": { "Content-Type": "application/json" }
+            });
+            const datas = await response.json();
+            //console.log(datas.spotsResult);
+            //讀資料、顯示資料
+            const divSpots = datas.spotsResult.map(spot => {
+                const { spotId, spotTitle, spotImage, address, spotDescription } = spot;
+                return (`
+                                   <div class="col">
+                        <div class="card h-100">
+                            <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
+                            <div class="card-body">
+                                      <h5 class="card-title">${spotId} - ${spotTitle}</h5>
+                                       <p class="card-text">${spotDescription.length <= 100 ? spotDescription : spotDescription.substring(0, 100)}</p>
+                            </div>
+                            <div class="card-footer">
+                                        <small class="text-body-secondary">${address}</small>
+                            </div>
+                        </div>
+                    </div>
+
+
+                        `)
+            })
+
+            div1.innerHTML = divSpots.join("");
+
+            //分頁
+            // console.log(datas.totalPages);
+            let liPaging = "";
+            for (let i = 1, max = datas.totalPages; i <= max; i++) {
+                liPaging += ` <li class="page-item" onclick="pagingHandler(${i})"><a class="page-link" href="#">${i}</a></li>`
+            }
+            ulPaging.innerHTML = liPaging;
+        };
+
+        //分頁
+        const pagingHandler = page => {
+            searchData.page = page;
+            loadSpots();
+        }
+
+        //關鍵字搜尋
+        inpKeyword.addEventListener('keydown', event => {
+            // console.log(event.which); //Enter => 13
+            if (event.which === 13) {
+                const mode = sortBy.value.split(" ");
+                searchData.sortBy = mode[0];
+                searchData.sortType = mode[1];
+                searchData.keyword = event.target.value;
+                searchData.pageSize = pageSize.value;
+                searchData.page = 1;
+                loadSpots();
+            }
+        })
+        pageSize.addEventListener('change', event => {
+            searchData.pageSize = event.target.value;
+            const mode = sortBy.value.split(" ");
+            searchData.sortBy = mode[0];
+            searchData.sortType = mode[1];
+            searchData.keyword = inpKeyword.value;
+                searchData.page = 1;
+                loadSpots();
+        })
+        const btnGroup = document.querySelector('.btn-group');
+
+        btnGroup.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                searchData.categoryId = event.target.value;
+                searchData.keyword = inpKeyword.value;
+                const mode = sortBy.value.split(" ");
+                searchData.sortBy = mode[0];
+                searchData.sortType = mode[1];
+                searchData.pageSize = pageSize.value;
+                searchData.page = 1;
+                loadSpots();
+            }
+        });
+        sortBy.addEventListener('change', event => {
+            searchData.keyword = inpKeyword.value;
+            const mode = event.target.value.split(" ");
+            searchData.sortBy = mode[0];
+            searchData.sortType = mode[1];
+            searchData.pageSize = pageSize.value;
+            searchData.page = 1;
+            loadSpots();
+        })
+
+
+        loadSpots();
+
+
+    </script>
+}
